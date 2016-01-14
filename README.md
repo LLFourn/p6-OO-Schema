@@ -1,4 +1,4 @@
-# OO::Schema
+# OO::Schema [![Build Status](https://travis-ci.org/LLFourn/p6-OO-Schema.svg)](https://travis-ci.org/LLFourn/p6-OO-Schema)
 
 Declare your class relationships separate from their implementation so
 you can talk about them without loading them.
@@ -75,9 +75,9 @@ install-package($fedora,'ntp');
 
 **warning** this is module is experimental and subject to change
 
-The main point of `OO::Schema` is to separate the the description of class 
+The main point of `OO::Schema` is to separate the the description of class
 inheritance trees and class implementation at a compunit level. It allows you
-to refer to classes by shortname aliases without loading them until you need 
+to refer to classes by shortname aliases without loading them until you need
 the actual implementation. These aliases contain inheritence information and any
 other meta-information like roles or methods attached to the node.
 
@@ -97,7 +97,7 @@ use Userland;
 # check the arg is a userland without having to load them all
 sub MAIN($userland-name where { ::($_) ~~ Userland}, *%opts ){
     my $userland = ::($userland-name).load-node-class().new(|%opts);
-    
+
     # do further introspection on a "real" class instance
     given $userland {
         when Windows { ... }
@@ -136,7 +136,7 @@ as the the directory where the node definitions will be stored, use `is path` to
 # lib/OS/Userland.pm6
 use OO::Schema;
 # as opposed to just schema OS::Userland { }
-schema Userland is path('OS::Userland') { 
+schema Userland is path('OS::Userland') {
     # now schema definitions should go in lib/OS/Userland/
 }
 ```
@@ -151,11 +151,11 @@ use OO::Schema;
 
 role APT { }
 
-schema Userland is path('OS::Userland') { 
+schema Userland is path('OS::Userland') {
     node Debian does APT {
         method default-gui { 'GNOME' }
         node Ubuntu {
-            node Kubuntu { 
+            node Kubuntu {
                 method default-gui { 'KDE' }
             }
         }
@@ -167,8 +167,8 @@ schema Userland is path('OS::Userland') {
 ```
 
 ## Declaring an Underlying Class
-In the appropriate directory, `use` your schema with `:node` and declare a class 
-with `is schema-node`. When its loaded 
+In the appropriate directory, `use` your schema with `:node` and declare a class
+with `is schema-node`. When its loaded
 
 ```perl6
 # lib/OS/Userland/Ubuntu.pm6
@@ -279,4 +279,4 @@ the class itself.
 
 1. Right now, you can't `.new` a node. I will probably just autoload the underlying class in the future. Maybe combined with a `is abstract` for when you don't want that.
 2. It's tricky to apply roles with required methods to nodes because you probably want to implement them in the underlying class not the node. Maybe the nodes should be more like roles which don't do that.
-3. I might make it possible to put `::` in the names of nodes things. 
+3. I might make it possible to put `::` in the names of nodes things.
