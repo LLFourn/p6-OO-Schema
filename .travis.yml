@@ -4,3 +4,7 @@ perl6:
 script:
   - prove -v -e 'perl6 -Ilib' t/
 sudo: false
+install:
+  - rakudobrew build-panda
+  - panda installdeps .
+  - panda install Pod::To::HTML
