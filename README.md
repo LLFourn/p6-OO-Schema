@@ -50,7 +50,7 @@ use Userland;
 
 proto install-package(Userland:D,Str:D $pkg) {*};
 
-# but I can still talk about things inheriting from them
+# but you can still talk about things inheriting from them
 # with these magical short names like 'Debian' and 'RHEL'
 multi install-package(Debian $userland,$pkg) {
     run 'apt-get', 'install', $pkg;
@@ -60,7 +60,7 @@ multi install-package(RHEL $userland,$pkg) {
     run 'yum', 'install', $pkg;
 }
 
-# now at runtime I load particular real class and make
+# now at runtime you load particular real class and make
 # an instance. It just works!
 my $ubuntu = (require Userland::Ubuntu).new;
 my $fedora = (require Userland::Fedora).new;
@@ -75,22 +75,25 @@ install-package($fedora,'ntp');
 
 **warning** this is module is experimental and subject to change
 
-The main point of `OO::Schema` is to separate the the description of class
-inheritance trees and class implementation at a compunit level. It allows you
-to refer to classes by shortname aliases without loading them until you need
-the actual implementation. These aliases contain inheritence information and any
+The main point of `OO::Schema` is to separate the the declaration of
+class inheritance trees and class implementation at a compunit
+level. It allows you to refer to classes by shortname aliases (schema
+nodes) without loading them until you need the actual
+implementation. The nodes contain inheritence information and any
 other meta-information like roles or methods attached to the node.
 
 There are two main use cases that I know of (but you may discover more):
 
-1. Type introspection. You want to be able to see the relationships between classes without loading them.
+1. Type introspection. You want to be able to see the relationships
+   between classes without loading them.
 
 ```perl6
 use Userland;
 # You can know that Ubuntu isa debian without loading compunits implementing either one
 say Ubuntu.isa(Debian); #-> True
 ```
-2. Dynamic loading. Depending on user input, your module may only need to load a subset of the modules in your distribution.
+2. Dynamic loading. Depending on user input, your module may only need
+   to load a subset of the modules in your distribution.
 
 ```perl6
 use Userland;
@@ -120,7 +123,7 @@ multi do-something(Userland::RHEL:D $ul)   { ... }
 ...
 ```
 
-or this when you are declaring inheritence
+or this when you are declaring inheritance
 
 ``` perl6
 need Userland::Debain;
@@ -129,8 +132,9 @@ unit class Userland::Ubuntu is Userland::Debain
 
 ## Declaring a Schema
 
-Inside a Perl6 module file, `use OO::Schema` and declare a `schema`. If the schema name is not the same
-as the the directory where the node definitions will be stored, use `is path` to set it.
+Inside a Perl6 module file, `use OO::Schema` and declare a
+`schema`. If the schema name is not the same as the the directory
+where the node definitions will be stored, use `is path` to set it.
 
 ```perl6
 # lib/OS/Userland.pm6
@@ -141,9 +145,10 @@ schema Userland is path('OS::Userland') {
 }
 ```
 
-Declare nodes with `node`. Node names shouldn't contain any `::` (for now).
-You can give them methods, attributes and roles if you want. Whether you do depends on whether
-you want to have them available without having to load the underlying class.
+Declare nodes with `node`. Node names shouldn't contain any `::` (for
+now).  You can give them methods, attributes and roles if you
+want. Whether you do depends on whether you want to have them
+available without having to load the underlying class.
 
 ```perl6
 # lib/OS/Userland.pm6
@@ -153,7 +158,9 @@ role APT { }
 
 schema Userland is path('OS::Userland') {
     node Debian does APT {
-        method default-gui { 'GNOME' }
+
+    method default-gui { 'GNOME' }
+
         node Ubuntu {
             node Kubuntu {
                 method default-gui { 'KDE' }
@@ -168,7 +175,7 @@ schema Userland is path('OS::Userland') {
 
 ## Declaring an Underlying Class
 In the appropriate directory, `use` your schema with `:node` and declare a class
-with `is schema-node`. When its loaded
+with `is schema-node`.
 
 ```perl6
 # lib/OS/Userland/Ubuntu.pm6
