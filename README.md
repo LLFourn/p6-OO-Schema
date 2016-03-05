@@ -26,7 +26,7 @@ schema Userland {
             node Debian {
                 node Ubuntu { }
             }
-            node RHEL  {
+            node RHEL  is load-from("Userland::RedHat") {
                 node Fedora { }
                 node CentOS { }
             }
@@ -47,12 +47,11 @@ and finally in
 # main.p6
 
 use Userland;
-# That's enough - I don't have to load Userland::RHEL or Userland::Debian
+# Don't have to load Userland::RHEL or Userland::Debian
 
 proto install-package(Userland:D,Str:D $pkg) {*};
 
-# but you can still talk about things inheriting from them
-# with these magical short names like 'Debian' and 'RHEL'
+# 'Debian' and 'RHEL' are schema nodes -- not full classes
 multi install-package(Debian $userland,$pkg) {
     run 'apt-get', 'install', $pkg;
 }
@@ -61,13 +60,17 @@ multi install-package(RHEL $userland,$pkg) {
     run 'yum', 'install', $pkg;
 }
 
-# now at runtime you load particular real class and make
-# an instance. It just works!
-my $ubuntu = (require Userland::Ubuntu).new;
-my $fedora = (require Userland::Fedora).new;
+# Now at runtime you load particular real class from a node ( or via require )
+# The routines will accept them.
+my $ubuntu =  Userland.load-class; # Userland::Ubuntu
+# or
+my $fedora =  Userland.new; # Userland::Fedora.new
+# or
+my $centos    =  ( require Userland::CentOS );
 
 install-package($ubuntu,'ntp');
 install-package($fedora,'ntp');
+install-package($centos,'ntp');
 
 #etc
 ```
@@ -87,29 +90,29 @@ There are two main use cases that I know of (but you may discover more):
 
 1. Type introspection. You want to be able to see the relationships
    between classes without loading them.
-
-```perl6
-use Userland;
-# You can know that Ubuntu isa debian without loading compunits implementing either one
-say Ubuntu.isa(Debian); #-> True
-```
+    ```perl6
+    use Userland;
+    # You can know that Ubuntu isa Debian without loading compunits implementing either one
+    say Ubuntu.isa(Debian); #-> True
+    # You can declare Typed parameters that accept a certain class without loading that class
+    multi something(Debian $computer) { ... }
+    ```
 2. Dynamic loading. Depending on user input, your module may only need
    to load a subset of the modules in your distribution.
+    ```perl6
+    use Userland;
+    # check the arg is a userland without having to load them all
+    sub MAIN($userland-name where { Userland.resolve($_) !=== Any }, *%opts ){
+        my $userland = Userland.resolve($userland-name).new(|%opts);
 
-```perl6
-use Userland;
-# check the arg is a userland without having to load them all
-sub MAIN($userland-name where { ::($_) ~~ Userland}, *%opts ){
-    my $userland = ::($userland-name).load-node-class().new(|%opts);
-
-    # do further introspection on a "real" class instance
-    given $userland {
-        when Windows { ... }
-        when RHEL    { ... }
-        when Debian  { ... }
+        # do further introspection on a "real" class instance
+        given $userland {
+            when Windows { ... }
+            when RHEL    { ... }
+            when Debian  { ... }
+        }
     }
-}
-```
+    ```
 
 Without using `OO::Schema` you will write code like this:
 
@@ -131,6 +134,9 @@ need Userland::Debain;
 unit class Userland::Ubuntu is Userland::Debain
 ```
 
+
+
+
 ## Declaring a Schema
 
 Inside a Perl6 module file, `use OO::Schema` and declare a
@@ -138,10 +144,10 @@ Inside a Perl6 module file, `use OO::Schema` and declare a
 where the node definitions will be stored, use `is path` to set it.
 
 ```perl6
-# lib/OS/Userland.pm6
-use OO::Schema;
-# as opposed to just schema OS::Userland { }
-schema Userland is path('OS::Userland') {
+    # lib/OS/Userland.pm6
+    use OO::Schema;
+    # as opposed to just schema OS::Userland { }
+    schema Userland is path('OS::Userland') {
     # now schema definitions should go in lib/OS/Userland/
 }
 ```
@@ -160,7 +166,7 @@ role APT { }
 schema Userland is path('OS::Userland') {
     node Debian does APT {
 
-    method default-gui { 'GNOME' }
+        method default-gui { 'GNOME' }
 
         node Ubuntu {
             node Kubuntu {
@@ -316,7 +322,7 @@ namepsace.
 ### load-from
 ```perl6
 schema Userland is path('OS::Userland') {
-    # RHEL.load_class will not load OS::Userland::RedHat
+    # RHEL.load-class will not load OS::Userland::RedHat
     node RHEL is load-from('OS::Userland::RedHat') {
         node Fedora { } # still loaded from OS::Userland::Fedora
         node CentOS { }
