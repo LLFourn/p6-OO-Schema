@@ -5,7 +5,6 @@ plan 6;
 
 {
     use OS::Userland;
-    use OS::Userland::RHEL::Fedora;
     is Userland.resolve(Fedora),Fedora,"resolves to itself";
     is Userland.resolve('centos'),CentOS,"lowercase";
     is Userland.resolve('OS::Userland::RHEL::Fedora'),Fedora,"Full name of to-be-loaded";
