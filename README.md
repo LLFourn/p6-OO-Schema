@@ -281,9 +281,11 @@ usually called on the schema.
 ``` perl6
 Userland.children # Windows, POSIX
 POSIX.children # BSD, GNU
+GNU.children(:all) # Debian, Ubuntu, RHEL, Fedora,CentOS
 ```
 
-returns the node's child nodes.
+Returns the node's direct child nodes. if `:all` is passed, returns
+all descendants.
 
 ## Traits
 

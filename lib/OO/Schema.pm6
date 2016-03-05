@@ -40,8 +40,8 @@ my role SchemaNode  {
         }
     }
 
-    submethod children {
-        self.^children;
+    submethod children(:$all){
+        |self.^children, |(self.^children».children(:all) if $all);
     }
 }
 
@@ -111,7 +111,7 @@ my role Schema {
     submethod resolve($test) {
         self.^children.map(*.resolve($test)).first(* !=== Any);
     }
-    submethod children { self.^children }
+    submethod children(:$all) { flat self.^children,(|self.^children».children(:all) if $all) };
 }
 
 
