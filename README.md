@@ -89,7 +89,7 @@ other meta-information like roles or methods attached to the node.
 There are two main use cases that I know of (but you may discover more):
 
 1. Type introspection. You want to be able to see the relationships
-   between classes without loading them.
+between classes without loading them.
     ```perl6
     use Userland;
     # You can know that Ubuntu isa Debian without loading compunits implementing either one
@@ -101,10 +101,14 @@ There are two main use cases that I know of (but you may discover more):
    to load a subset of the modules in your distribution.
     ```perl6
     use Userland;
+    sub USAGE {
+        say "pass me one of:\n" ~ Userland.children(:all)».^name.join("\n");
+    }
     # check the arg is a userland without having to load them all
-    sub MAIN($userland-name where { Userland.resolve($_) !=== Any }, *%opts ){
-        my $userland = Userland.resolve($userland-name).new(|%opts);
-
+    sub MAIN($userland-name, *%opts ){
+        my $userland = Userland.resolve($userland-name);
+        die USAGE() if $userland === Any;
+        $userland .= new(|%opts);
         # do further introspection on a "real" class instance
         given $userland {
             when Windows { ... }
@@ -281,7 +285,7 @@ usually called on the schema.
 ``` perl6
 Userland.children # Windows, POSIX
 POSIX.children # BSD, GNU
-GNU.children(:all) # Debian, Ubuntu, RHEL, Fedora,CentOS
+GNU.children(:all) # Debian, Ubuntu, RHEL, Fedora, CentOS
 ```
 
 Returns the node's direct child nodes. if `:all` is passed, returns
