@@ -90,6 +90,7 @@ There are two main use cases that I know of (but you may discover more):
 
 1. Type introspection. You want to be able to see the relationships
 between classes without loading them.
+
     ```perl6
     use Userland;
     # You can know that Ubuntu isa Debian without loading compunits implementing either one
@@ -98,7 +99,8 @@ between classes without loading them.
     multi something(Debian $computer) { ... }
     ```
 2. Dynamic loading. Depending on user input, your module may only need
-   to load a subset of the modules in your distribution.
+to load a subset of the modules in your distribution.
+
     ```perl6
     use Userland;
     sub USAGE {
