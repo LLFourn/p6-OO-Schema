@@ -249,7 +249,8 @@ say Fedora.load-class.^name # Userland::Fedora
 
 ### new
 
-short for:
+Loads the class associated with the node and calls `.new` with the
+arguments passed.
 
 ``` perl6
 Fedora.new(foo => "bar");
