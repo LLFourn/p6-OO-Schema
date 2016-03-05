@@ -17,10 +17,11 @@ schema Userland {
     }
 
     node POSIX {
-
-        node FreeBSD { }
-        node OpenBSD { }
-
+        node BSD {
+            node FreeBSD { }
+            node OpenBSD { }
+            node OSX is alias(<Darwin xnu>) { }
+        }
         node GNU {
             node Debian {
                 node Ubuntu { }
@@ -226,21 +227,76 @@ Fedora  Ubuntu  <-- Userland::Ubuntu
 
 ## Node Methods
 
-Each node has `new` and `load-class` installed as
-submethods. `load-class` will load the underlying class while `.new`
-is just shorthand for:
+### load-class
+
+Loads the class associated with the node.
 
 ``` perl6
-Fedora.load-class.new( fancy => 'arg' )
+say Fedora.load-class.^name # Userland::Fedora
 ```
 
+### new
+
+short for:
+
+``` perl6
+Fedora.new(foo => "bar");
+# short for
+Fedora.load-class.new(foo => "bar");
+```
+
+### matches
+
+Does the node loosely match a string.
+
+``` perl6
+Debian.matches(Debian)   # True
+Debian.matches("Debian") # True
+Debian.matches("debian") # True
+Debian.matches("Userland::Debian") # True
+Debian.matches(Userland::Debian) # True
+
+# OSX is alias ('Darwin')
+OSX.matches("darwin") # True
+```
+
+### resolve
+
+``` perl6
+Userland.resolve("centos") # CentOS
+```
+
+Walks the schema calling `matches` on each node with the argument. It
+returns the first node it finds. Although node's have it too this is
+usually called on the schema.
+
+
+### children
+
+``` perl6
+Userland.children # Windows, POSIX
+POSIX.children # BSD, GNU
+```
+
+returns the node's child nodes.
 
 ## Traits
+
+### is alias
+
+``` perl6
+node OSX is alias('Darwin','xnu') { }
+
+OSX.matches("darwin") # True
+OSX.matches("xnu");   # True
+```
+
+Tells the node it should also match against the arguments to `is alias`.
 
 ### is path
 
 ```perl6
-schema userland {
+schema serland {
     node RHEL is path is path('OS::Userland') {
         # Fedora, and Centos will now be loaded from
         # Userland::RHEL::Fedora, instead of Userland::Fedora
