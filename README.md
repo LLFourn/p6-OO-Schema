@@ -361,7 +361,6 @@ the class itself.
 
 ## potential changes
 
-1.`is abstract` for when you don't want a node that doesn't have an underlying class.
-
+1. `is abstract` for when you don't want a node that doesn't have an underlying class.
 2. It's tricky to apply roles with required methods to nodes because you probably want to
 implement them in the underlying class not the node. Maybe the nodes should be more like roles which don't do that.
