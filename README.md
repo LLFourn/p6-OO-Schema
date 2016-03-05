@@ -270,7 +270,6 @@ Walks the schema calling `matches` on each node with the argument. It
 returns the first node it finds. Although node's have it too this is
 usually called on the schema.
 
-
 ### children
 
 ``` perl6
@@ -296,46 +295,42 @@ Tells the node it should also match against the arguments to `is alias`.
 ### is path
 
 ```perl6
-schema serland {
-    node RHEL is path is path('OS::Userland') {
-        # Fedora, and Centos will now be loaded from
-        # Userland::RHEL::Fedora, instead of Userland::Fedora
-        node Fedora { }
-        node CentOS { }
-    }
-}
-```
-
-```perl6
-schema userland is path('OS::Userland') {
+# Everything under Userland is now loaded from OS::Userland
+schema Userland is path('OS::Userland') {
+    # Everything under RHEL is loaded from OS::Userland::RedHat
+    # (RHEL is still loaded from OS::Userland::RHEL
     node RHEL is path('RedHat') {
-        # Fedora, and Centos will now be loaded from
-        # Userland::RedHat::Fedora, instead of Userland::Fedora
-        node Fedora { }
-        node CentOS { }
+        # Fedora, and Centos will now be loaded from:
+        node Fedora { } # OS::Userland::RedHat::Fedora
+        node CentOS { } # OS::Userland::RedHat::CentOS
     }
 }
-```
-By default the underlying classes for nodes are all searched for under the `schema`'s namespace.
-`is path` indicates that the node represents a subnamespace as well as a class. `schema`s can
-use it to change the default namepsace but they are already represented by a directory.
 
-### loaded-from
+```
+
+By default the underlying classes for nodes are all searched for under
+the `schema`'s namespace.  `is path` means "prepend this to the load
+name of any child node". `schema`s can use it to change the default
+namepsace.
+
+### load-from
 ```perl6
-schema userland is path('OS::Userland') {
-    node RHEL is loaded-from('OS::Userland::RedHat') {
-        # Fedora, and Centos will now be loaded from
-        # Userland::RedHat::Fedora, instead of Userland::Fedora
-        node Fedora { }
+schema Userland is path('OS::Userland') {
+    # RHEL.load_class will not load OS::Userland::RedHat
+    node RHEL is load-from('OS::Userland::RedHat') {
+        node Fedora { } # still loaded from OS::Userland::Fedora
         node CentOS { }
     }
 }
 ```
-Sets the name to load the node's underlying class from.
+
+Overrides the name of the load path ie CompUnit short-name to load
+from. It doesn't affect child nodes.
 
 ### schema-node
 
 ```perl6
+#lib/OS/Userland/RHEL.pm
 use OS::Userland;
 
 unit class OS::Userland::RHEL is schema-node;
