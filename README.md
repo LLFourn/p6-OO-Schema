@@ -158,10 +158,10 @@ where the node definitions will be stored, use `is path` to set it.
 }
 ```
 
-Declare nodes with `node`. Node names shouldn't contain any `::` (for
-now).  You can give them methods, attributes and roles if you
-want. Whether you do depends on whether you want to have them
-available without having to load the underlying class.
+Declare nodes with `node`. Node names shouldn't contain any `::`.  You
+can give them methods, attributes and roles if you want. Whether you
+do depends on whether you want to have them available without having
+to load the underlying class.
 
 ```perl6
 # lib/OS/Userland.pm6
@@ -361,6 +361,7 @@ the class itself.
 
 ## potential changes
 
-1.`is abstract` for when you don't want a node that doesn't have an underlying class
-2. It's tricky to apply roles with required methods to nodes because you probably want to implement them in the underlying class not the node. Maybe the nodes should be more like roles which don't do that.
-3. I might make it possible to put `::` in the names of nodes things.
+1.`is abstract` for when you don't want a node that doesn't have an underlying class.
+
+2. It's tricky to apply roles with required methods to nodes because you probably want to
+implement them in the underlying class not the node. Maybe the nodes should be more like roles which don't do that.
